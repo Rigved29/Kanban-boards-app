@@ -1,9 +1,10 @@
 'use client';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import Header from "./Header";
 import BoardsList from "./List";
 import Modal from "./Modal";
 import data from '../boardsData.json';
+import { boardsContext } from "./boardsContext";
 
 type Items = {
     name: String;
@@ -25,34 +26,76 @@ type BoardsData = {
 
 const Home = () => {
 
-    const [showModal, setShowModal] = useState<boolean>(false);
-    const [boardsData, setBoardsData] = useState<BoardsData[] | null>(null);
-    const [boardName, setBoardName] = useState(''); // current board name
-    const [description, setDescription] = useState(''); // current board description
+    const { boardsData,
+        currentBoardId,
+        currentBoardName,
+        currentDescriptionName,
+        showModal,
+        modalBtnContent,
+        updateBoardsData,
+        updateCurrentBoardName,
+        updateCurrentDescription,
+        updateModalState,
+        updateModalBtnContent, updateCurrentBoardId } = useContext(boardsContext)
+
 
 
     useEffect(() => {
-        setBoardsData(data);
+        updateBoardsData(data);
     }, [data])
 
 
     function showModalHandler(): void {
-        setShowModal(true);
+        updateModalState(true);
     }
 
 
     function closeModalHandler(): void {
-        setShowModal(false);
+        updateModalState(false);
+    }
+
+    function clickHandler(boardName: String, description: String): void {
+        if (modalBtnContent === "Add") {
+            if (boardsData) {
+                const newBoard = {
+                    id: boardsData?.length + 1,
+                    name: boardName,
+                    description: description,
+                    columns: [{ id: 1, title: 'To Do Tasks', items: [] }, { id: 2, title: 'In Progress', items: [] }, { id: 3, title: 'Completed', items: [] }]
+                }
+
+                updateBoardsData([newBoard, ...boardsData])
+            }
+        } else if (modalBtnContent === "Edit") {
+            if (boardsData) {
+
+                const updatedBoardsData = boardsData.map((board) => {
+                    if (board.id === currentBoardId) {
+                        board.name = boardName;
+                        board.description = description;
+                    }
+                    return board;
+                })
+
+                updateBoardsData([...updatedBoardsData]);
+                updateCurrentBoardName('');
+                updateCurrentDescription('');
+            }
+        }
+
+
+        closeModalHandler()
+
     }
 
     return (
         <main>
-            <section className="p-4 mb-6 flex justify-center shadow-lg shadow-black">
+            <section className="p-4 mb-6 flex text-[#361F7A] text-xl font-bold justify-center shadow-lg shadow-black">
                 Kanban Boards App
             </section>
             <Header headTitle="Boards" btnContent="+ Create Board" onClickHandler={showModalHandler} />
-            <BoardsList boardsData={boardsData} setBoardsData={setBoardsData} setBoardDescription={setDescription} setBoardName={setBoardName} />
-            {showModal && <Modal onClickHandler={closeModalHandler} setBoardsData={setBoardsData} boardName={boardName} setBoardName={setBoardName} description={description} setBoardDescription={setDescription} />}
+            <BoardsList />
+            {showModal && <Modal onClickHandler={clickHandler} btnContent='Add' />}
         </main>
     )
 }

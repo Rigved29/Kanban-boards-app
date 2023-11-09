@@ -1,7 +1,8 @@
 
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useContext } from 'react';
 import BoardListItem from "./ListItem";
+import { boardsContext } from "./boardsContext";
 
 type Items = {
     name: String;
@@ -21,17 +22,16 @@ type BoardsData = {
     columns: Columns[]
 }
 
-type Props = {
-    boardsData: BoardsData[] | null;
-    setBoardsData: React.Dispatch<React.SetStateAction<BoardsData[] | null>>,
-    setBoardName: React.Dispatch<React.SetStateAction<string>>;
-    setBoardDescription: React.Dispatch<React.SetStateAction<string>>
-}
+// type Props = {
+//     boardsData: BoardsData[] | null;
+//     setBoardsData: React.Dispatch<React.SetStateAction<BoardsData[] | null>>,
+//     setBoardName: React.Dispatch<React.SetStateAction<string>>;
+//     setBoardDescription: React.Dispatch<React.SetStateAction<string>>
+// }
 
 
-const BoardsList = (props: Props) => {
-
-
+const BoardsList = () => {
+    const { boardsData } = useContext(boardsContext)
 
 
     return (
@@ -43,8 +43,8 @@ const BoardsList = (props: Props) => {
                 <span className='w-1/3 text-end'>Actions</span>
             </div>
             <ul>
-                {props.boardsData?.map((board, i) => {
-                    return <BoardListItem boardName={board.name} boardDescription={board.description} id={board.id} sno={i + 1} setBoardsData={props.setBoardsData} setBoardDescription={props.setBoardDescription} setBoardName={props.setBoardName} />
+                {boardsData?.map((board, i) => {
+                    return <BoardListItem boardName={board.name} boardDescription={board.description} id={board.id} sno={i + 1} />
                 })}
             </ul>
         </section>

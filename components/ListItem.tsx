@@ -1,6 +1,8 @@
+import { useContext } from 'react';
 import Link from 'next/link';
 import { MdEdit, MdDelete } from 'react-icons/md';
 import { AiFillEye } from 'react-icons/ai';
+import { boardsContext } from "./boardsContext";
 
 
 type Items = {
@@ -26,29 +28,41 @@ type Props = {
   boardName: String;
   boardDescription: String;
   sno: number;
-  setBoardsData: React.Dispatch<React.SetStateAction<BoardsData[] | null>>,
-  setBoardName: React.Dispatch<React.SetStateAction<string>>;
-  setBoardDescription: React.Dispatch<React.SetStateAction<string>>
 }
 
 const BoardListItem = (props: Props) => {
 
+  const { boardsData,
+    currentBoardName,
+    currentDescriptionName,
+    showModal,
+    modalBtnContent,
+    updateBoardsData,
+    updateCurrentBoardName,
+    updateCurrentDescription,
+    updateModalState,
+    updateModalBtnContent, updateCurrentBoardId } = useContext(boardsContext)
+
   function deleteBoardHandler(id: Number): void {
 
-    console.log('listItem36', props);
 
-    props.setBoardsData((prevState) => {
-      if (prevState) {
-        const newData = prevState.filter((el) => el.id !== id);
-        return newData;
-      } else {
-        return prevState;
-      }
+    const newData = boardsData?.filter((el) => el.id !== id);
+    if (newData) updateBoardsData(newData);
 
-    })
   }
 
+  function editBoardHandler(): void {
+    const currentBoard = boardsData?.find((board) => board.id === props.id);
 
+    if (currentBoard) {
+      updateCurrentBoardName(currentBoard.name);
+      updateCurrentDescription(currentBoard.description);
+      updateCurrentBoardId(currentBoard.id)
+      updateModalBtnContent('Edit');
+      updateModalState(true);
+    }
+
+  }
 
 
   return (
@@ -58,7 +72,7 @@ const BoardListItem = (props: Props) => {
       <span className='w-1/3 text-start'>{props.boardDescription}</span>
       <div className='w-1/3 text-center flex justify-end gap-2 text-[#361F7A]'>
         <Link href={`/board/${props.id}`}><AiFillEye className='cursor-pointer' /></Link>
-        <MdEdit className='cursor-pointer' />
+        <MdEdit className='cursor-pointer' onClick={() => editBoardHandler()} />
         <MdDelete className='cursor-pointer' onClick={() => deleteBoardHandler(props.id)} />
       </div>
     </li>
